@@ -167,7 +167,7 @@ These come next if time allows or in a follow-up. They are not part of the assig
 3. Last-write-wins is acceptable for concurrent editors in this slice.
 4. A single hosted Supabase project (free tier) serves both local development and production. The Supabase local stack (Docker) is documented as an option for other developers; a plain Postgres alone is not supported (`architecture.md` D6).
 5. Email confirmation is disabled on the Supabase project so reviewers can sign up instantly. There are deliberately no seeded/demo accounts: testing uses real sign-ups.
-6. Markdown import targets CommonMark/GFM basics. Unsupported constructs (images, tables) are dropped or flattened to text.
+6. Markdown import targets CommonMark/GFM basics. Unsupported constructs (images, tables) are flattened to text — images keep their alt text, and a file whose blocks can't be represented is imported as plain text rather than a blank document, so content is never silently lost.
 
 ## 10. Known limitations (initial; kept current in `SUBMISSION.md`)
 

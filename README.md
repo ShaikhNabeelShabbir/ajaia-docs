@@ -139,7 +139,7 @@ There are no seeded or demo accounts. Use **Create account** on the sign-in page
 | Type | Extensions | Behaviour |
 |---|---|---|
 | Plain text | `.txt` | Blocks separated by blank lines become paragraphs; single line breaks are preserved |
-| Markdown | `.md`, `.markdown` | Headings, bold/italic/strike, lists, blockquotes, code and links become rich text. Images and tables are not supported and are dropped or flattened to text. |
+| Markdown | `.md`, `.markdown` | Headings, bold/italic/strike, lists, blockquotes, code and links become rich text. Images keep their alt text; tables and other unsupported blocks are preserved as plain text (never dropped to a blank document). |
 
 Limits: max 500 KB, UTF-8 text only. Other types (e.g. `.docx`, `.pdf`) are rejected with a message.
 
@@ -157,3 +157,4 @@ Limits: max 500 KB, UTF-8 text only. Other types (e.g. `.docx`, `.pdf`) are reje
 - Import supports `.txt` and `.md` only.
 
 More in [`SUBMISSION.md`](SUBMISSION.md).
+

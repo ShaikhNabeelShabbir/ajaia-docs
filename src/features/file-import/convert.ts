@@ -1,6 +1,6 @@
 import type { JSONContent } from '@tiptap/core'
 import { MarkdownManager } from '@tiptap/markdown'
-import { EMPTY_DOC, HEADING_LEVELS, assertValidDoc, schemaExtensions } from '@/features/editor/schema'
+import { EMPTY_DOC, HEADING_LEVELS, assertValidDoc, documentSchema, schemaExtensions } from '@/features/editor/schema'
 import { UserFacingError } from '@/lib/errors'
 import { fileExtension, readTextFile, validateImportFile } from './validate'
 
@@ -35,8 +35,49 @@ export function textToDoc(text: string): JSONContent {
 /** Markdown → document JSON for our schema, with unsafe links removed and headings clamped to H1–H3. */
 export function markdownToDoc(markdown: string): JSONContent {
   markdownManager ??= new MarkdownManager({ extensions: schemaExtensions })
-  const doc = sanitize(markdownManager.parse(markdown))
+  const doc = normalizeTopLevel(sanitize(markdownManager.parse(markdown)))
+
+  // If conversion kept no visible text but the file clearly had some (e.g. a table- or
+  // HTML-only file whose blocks our schema can't represent), don't hand back a blank
+  // document — import the raw text instead, so the content is never silently lost.
+  if (!hasVisibleText(doc)) return markdown.trim() ? textToDoc(markdown) : EMPTY_DOC
   return doc.content?.length ? doc : EMPTY_DOC
+}
+
+function isInlineNode(node: JSONContent): boolean {
+  const spec = node.type ? documentSchema.nodes[node.type] : undefined
+  // Unknown types are treated as inline so they get wrapped into a paragraph rather than
+  // sitting illegally at the document's top level.
+  return spec ? spec.isInline : true
+}
+
+// A `doc` node may only contain block nodes. The Markdown parser can emit stray inline nodes at
+// the top level (e.g. the alt text of an image it can't represent), which is schema-invalid and
+// renders as a blank editor. Wrap any run of top-level inline nodes into a paragraph.
+function normalizeTopLevel(doc: JSONContent): JSONContent {
+  if (!doc.content?.length) return doc
+  const content: JSONContent[] = []
+  let inlineRun: JSONContent[] = []
+  const flush = () => {
+    if (inlineRun.length) {
+      content.push({ type: 'paragraph', content: inlineRun })
+      inlineRun = []
+    }
+  }
+  for (const node of doc.content) {
+    if (isInlineNode(node)) inlineRun.push(node)
+    else {
+      flush()
+      content.push(node)
+    }
+  }
+  flush()
+  return { ...doc, content }
+}
+
+function hasVisibleText(node: JSONContent): boolean {
+  if (node.type === 'text') return (node.text ?? '').trim() !== ''
+  return (node.content ?? []).some(hasVisibleText)
 }
 
 export function isSafeHref(href: unknown): boolean {

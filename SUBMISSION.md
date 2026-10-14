@@ -7,7 +7,7 @@
 
 | Item | Value | Status |
 |---|---|---|
-| Live product URL | https://ajaia-docs-nu-peach.vercel.app | ✅ live |
+| Live product URL | https://ajaia-docs-nu-peach.vercel.app | ✅ live (⚠ redeploy to ship the import fix below) |
 | Walkthrough video | `<PENDING — Loom/YouTube URL>` (also in `WALKTHROUGH_VIDEO_URL.txt`) | ⏳ |
 | Google Drive folder | `<PENDING — prepared by candidate>` | ⏳ |
 | Source repository | https://github.com/ShaikhNabeelShabbir/ajaia-docs | ✅ |
@@ -31,7 +31,7 @@ There are no seeded or demo accounts. Reviewers sign up as real users (email con
 | Walkthrough video URL text file | `WALKTHROUGH_VIDEO_URL.txt` | ⏳ placeholder |
 | Screenshots / demo GIF | `docs/screenshots/` | ⏳ |
 | Test accounts | self sign-up (see Reviewer access) | ✅ no seeded accounts needed |
-| Automated tests | `src/**/*.test.ts`, `scripts/db-push.test.ts`, `tests/integration/` | ✅ unit 33/33 passing |
+| Automated tests | `src/**/*.test.ts`, `scripts/db-push.test.ts`, `tests/integration/` | ✅ unit 36/36 passing |
 | Supporting docs | `PRD.md`, `plan.md`, `memory.md` | ✅ initial versions written |
 
 ## Feature status
@@ -48,7 +48,7 @@ There are no seeded or demo accounts. Reviewers sign up as real users (email con
 
 | Suite | Command | Last result |
 |---|---|---|
-| Unit (import, autosave queue, db:push URL handling) | `npm test` | ✅ 33/33 passing |
+| Unit (import + edge cases, autosave queue, db:push URL handling) | `npm test` | ✅ 36/36 passing |
 | DB permissions on the live project | SQL impersonation, rolled back (see `AI_WORKFLOW.md`) | ✅ 22/22 as expected |
 | Integration via API (optional) | `npm run test:integration` | not run (needs `SUPABASE_SECRET_KEY`; skipped by choice) |
 
@@ -70,7 +70,7 @@ There are no seeded or demo accounts. Reviewers sign up as real users (email con
 | Headings / text size | ✅ | H1–H3 + normal text |
 | Bulleted / numbered lists | ✅ | Both, plus quote/strikethrough |
 | **2. File upload** | | |
-| Upload a file into the workflow | ✅ | Import `.txt`/`.md` → new editable doc |
+| Upload a file into the workflow | ✅ (local) / ⚠ live pending redeploy | Import `.txt`/`.md` → new editable doc. A fix for image/table-heavy files is committed locally but **not yet redeployed**; the live site must be redeployed for import to work on files with images/tables. |
 | Supported types stated in UI + README | ✅ | Import dialog + README |
 | **3. Sharing** | | |
 | A document owner | ✅ | `documents.owner_id` |
@@ -85,7 +85,7 @@ There are no seeded or demo accounts. Reviewers sign up as real users (email con
 | Setup & run instructions | ✅ | `README.md` |
 | Working deployment reviewers can access | ✅ | Live Vercel URL (above) |
 | Basic validation & error handling | ✅ | Client + DB constraints; loading/empty/error states |
-| At least one meaningful automated test | ✅ | 33 unit tests + RLS verification + optional integration suite |
+| At least one meaningful automated test | ✅ | 36 unit tests + RLS verification + optional integration suite |
 | Architecture note | ✅ | `architecture.md` |
 | AI-native workflow note | ✅ | `AI_WORKFLOW.md` |
 | Walkthrough video (3–5 min) | ⏳ | Not recorded; `WALKTHROUGH_VIDEO_URL.txt` placeholder |
@@ -103,6 +103,7 @@ Full black-box + gray-box review in [`docs/security-review.md`](docs/security-re
 - Recipients must be registered users; no email invitations or public links.
 - Import limited to `.txt` / `.md` (≤ 500 KB); no `.docx`/`.pdf`.
 - "No user found" on sharing returns HTTP 500 under the hood (mapped to a friendly message in the UI).
+- Markdown tables/images are not rendered richly: images keep alt text; table-only files import as plain text (content preserved, not blank).
 
 ## What works end to end
 

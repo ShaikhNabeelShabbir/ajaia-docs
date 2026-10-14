@@ -74,7 +74,7 @@ _All Phase 2 code is written and type-checks; nothing is marked `[x]` until exer
 
 | # | Task | Depends | Acceptance check |
 |---|---|---|---|
-| 3.1 | [x] Unit tests: import validation + conversion + schema validity + unsafe links; SaveQueue; db:push URL | 2.7 | `npm test` → 33/33 pass ✔ |
+| 3.1 | [x] Unit tests: import validation + conversion + schema validity + unsafe links; SaveQueue; db:push URL | 2.7 | `npm test` → 36/36 pass ✔ |
 | 3.2 | [-] Integration test `tests/integration/access-control.test.ts` (7 cases) | 1.6 | Written; not run (user prefers no secret-key scripts). Same rules verified via SQL as two users in a rolled-back transaction (22/22) ✔ |
 | 3.3 | [~] Seed script and demo accounts — **removed at user request**; testing uses real sign-ups | — | No demo code or accounts remain ✔ |
 | 3.4 | [x] Lint + typecheck + production build | all | `tsc -b`, `oxlint`, `vite build` all pass; editor + importer code-split; prod deps audit clean |

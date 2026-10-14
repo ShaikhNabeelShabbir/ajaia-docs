@@ -57,6 +57,35 @@ describe('markdownToDoc', () => {
     expect(findAll(doc, 'heading').map((h) => h.attrs?.level)).toEqual([3])
   })
 
+  it('wraps top-level inline content (image alt text) into a valid paragraph', () => {
+    // An image has no node in our schema; the parser emits its alt text as a bare top-level
+    // text node, which is invalid as a direct child of `doc` and renders as a blank editor.
+    const doc = markdownToDoc('![a diagram](https://example.com/x.png)')
+    expect(() => assertValidDoc(doc)).not.toThrow()
+    expect(doc.content?.[0]?.type).toBe('paragraph')
+    expect(JSON.stringify(doc)).toContain('a diagram')
+  })
+
+  it('keeps content as text when the document would otherwise be blank (table-only file)', () => {
+    const md = '| Name | Role |\n|------|------|\n| Ada  | Lead |'
+    const doc = markdownToDoc(md)
+    expect(() => assertValidDoc(doc)).not.toThrow()
+    // Tables are unsupported, but the content must not vanish — it falls back to raw text.
+    expect(JSON.stringify(doc)).toContain('Name')
+    expect(JSON.stringify(doc)).toContain('Ada')
+  })
+
+  it('always returns a schema-valid document for mixed/unsupported markdown', () => {
+    for (const md of [
+      '![img](https://x.com/y.png)\n\n# Heading\n\ntext',
+      '<div><p>html block</p></div>',
+      'Plain intro\n\n![pic](https://x.com/p.png)\n\nOutro',
+      '# Only a heading',
+    ]) {
+      expect(() => assertValidDoc(markdownToDoc(md)), md).not.toThrow()
+    }
+  })
+
   it('never produces nodes outside the editor schema from raw HTML', () => {
     const doc = markdownToDoc('<script>alert(1)</script>\n\n<img src=x onerror=alert(1)>\n\nText')
     expect(() => assertValidDoc(doc)).not.toThrow()

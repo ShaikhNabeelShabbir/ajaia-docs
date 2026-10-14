@@ -126,3 +126,5 @@ Create → format → autosave → refresh (persists) · Import `.md`/`.txt` →
 5. Upgrade to Editor → edit → owner sees the change.
 6. Revoke → access gone.
 7. Close on key decisions: RLS as the authorization boundary (no Drizzle/Edge Functions), Tiptap JSON persistence, deliberate scope cuts, and how AI was used + verified.
+
+The drive containing the project is at this URl : https://drive.google.com/drive/folders/1FY2_UjdxxEL0ect99hCTAME-Wkrorq_J?usp=sharing

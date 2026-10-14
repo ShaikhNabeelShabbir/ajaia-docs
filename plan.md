@@ -45,7 +45,7 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete **and verified*
 | 1.6 | [x] `supabase db push` via a temporary `DATABASE_URL` (removed afterwards) | 1.4, 1.5 | Catalog: RLS on all 3 tables, 7 policies, column grants, triggers, migration history ✔; 22 rolled-back RLS checks ✔ |
 | 1.6b | [ ] **User:** turn off Auth → Email → "Confirm email" | — | `/auth/v1/settings` shows `mailer_autoconfirm: true` |
 | 1.7 | [x] `src/lib/database.types.ts` generated from the live schema | 1.6 | `tsc -b` passes ✔ |
-| 1.8 | [-] Supabase client + `AuthProvider` + `ProtectedRoute` + Login/Sign-up page (+ demo-account buttons) | 1.6 | Code done; sign up/in/out on localhost pending schema |
+| 1.8 | [-] Supabase client + `AuthProvider` + `ProtectedRoute` + Login/Sign-up page | 1.6 | Code done; sign up/in/out on localhost pending schema |
 
 **Done when:** a new user can sign up and sign in locally, and the `profiles` row is auto-created.
 
@@ -76,11 +76,11 @@ _All Phase 2 code is written and type-checks; nothing is marked `[x]` until exer
 |---|---|---|---|
 | 3.1 | [x] Unit tests: import validation + conversion + schema validity + unsafe links; SaveQueue debounce/serialization/retry | 2.7 | `npm test` → 27/27 pass ✔ (11:30) |
 | 3.2 | [-] Integration test `tests/integration/access-control.test.ts` (7 cases) | 1.6 | Written; not run (user prefers no secret-key scripts). Same rules verified via SQL as two users in a rolled-back transaction (22/22) ✔ |
-| 3.3 | [~] Seed script `scripts/seed.ts` — optional; demo buttons on the login page now self-provision Alice/Bob via public sign-up | 1.6 | Demo sign-in works in browser once "Confirm email" is off |
+| 3.3 | [~] Seed script and demo accounts — **removed at user request**; testing uses real sign-ups | — | No demo code or accounts remain ✔ |
 | 3.4 | [-] Lint + typecheck + production build | all | Passing as of 11:33 (re-run at end); editor + importer code-split |
 | 3.5 | [-] `vercel.json` SPA rewrite ✔; git init; deploy to Vercel; set env vars | 3.4 | Live URL loads; deep link `/d/:id` refresh works |
 | 3.6 | [ ] Supabase auth Site URL / redirect URLs → Vercel domain | 3.5 | Sign-in works on live URL |
-| 3.7 | [ ] Live verification of J1–J5 with seeded accounts (desktop + 375 px mobile) | 3.5 | Checklist below all ticked |
+| 3.7 | [ ] Live verification of J1–J5 with two real sign-ups (desktop + 375 px mobile) | 3.5 | Checklist below all ticked |
 | 3.8 | [ ] Screenshots to `docs/screenshots/` | 3.7 | Files exist and referenced from SUBMISSION.md |
 | 3.9 | [ ] Walkthrough outline in SUBMISSION.md | 3.7 | Outline covers the 5 required topics |
 

@@ -19,7 +19,7 @@ Teams need a fast, low-friction place to draft shared work. Full suites like Goo
 |---|---|---|
 | **Author / owner** | Ajaia team member drafting a doc (spec, notes, proposal) | Write and format quickly; control who can see or edit |
 | **Collaborator** | Teammate a doc is shared with | Find docs shared with them; read or edit them according to their access |
-| **Reviewer** (assignment evaluator) | Tests the deployed build | Exercise every flow in minutes using seeded accounts |
+| **Reviewer** (assignment evaluator) | Tests the deployed build | Exercise every flow in minutes by signing up two accounts |
 
 ## 3. User needs and primary use cases
 
@@ -91,7 +91,7 @@ Each requirement is tagged **[A]** (required by `idea.md`) or **[+]** (added by 
 | FR-3.4 | Visible distinction: "My documents" vs "Shared with me", showing owner email and role on shared docs | A | P0 |
 | FR-3.5 | Owner can change a collaborator's role and revoke access | + | P1 |
 | FR-3.6 | Permissions enforced at the database (RLS), not just hidden in the UI | + | P0 |
-| FR-3.7 | Lightweight email + password login; seeded reviewer accounts | A (allowed) | P0 |
+| FR-3.7 | Lightweight email + password sign-up and login (no seeded or demo accounts; testers register real users) | A (allowed) | P0 |
 
 Only the owner can share, change roles, revoke, or delete. Editors cannot re-share.
 
@@ -166,7 +166,7 @@ These come next if time allows or in a follow-up. They are not part of the assig
 2. Revealing whether an email is registered (in the share dialog) is acceptable for an internal tool.
 3. Last-write-wins is acceptable for concurrent editors in this slice.
 4. A single hosted Supabase project (free tier) serves both local development and production. There is no local Docker stack (decision recorded in `architecture.md`).
-5. Email confirmation is disabled on the Supabase project so reviewers can sign up instantly. Seeded accounts are also provided.
+5. Email confirmation is disabled on the Supabase project so reviewers can sign up instantly. There are deliberately no seeded/demo accounts: testing uses real sign-ups.
 6. Markdown import targets CommonMark/GFM basics. Unsupported constructs (images, tables) are dropped or flattened to text.
 
 ## 10. Known limitations (initial; kept current in `SUBMISSION.md`)
@@ -178,7 +178,7 @@ These come next if time allows or in a follow-up. They are not part of the assig
 ## 11. Success criteria
 
 The submission succeeds when:
-1. A reviewer can complete J1–J5 on the live URL using the seeded accounts, without local setup.
+1. A reviewer can complete J1–J5 on the live URL by signing up two accounts, without local setup.
 2. Permissions are demonstrably enforced by the database. An automated test proves it.
 3. Content and formatting survive refresh and re-login.
 4. Docs are honest: every claimed feature is verified, and every gap is disclosed.

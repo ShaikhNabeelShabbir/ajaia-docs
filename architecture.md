@@ -189,7 +189,7 @@ Errors surface through toasts (mutations) and inline states (page loads). Supaba
 
 ## 10. Security considerations
 
-- Only the **publishable** key (`VITE_SUPABASE_PUBLISHABLE_KEY`) reaches the browser. The secret/service-role key is used **only** by local scripts (`scripts/seed.ts`, integration tests) and never has a `VITE_` prefix.
+- Only the **publishable** key (`VITE_SUPABASE_PUBLISHABLE_KEY`) reaches the browser. The secret/service-role key is used **only** by the optional local integration tests and never has a `VITE_` prefix.
 - RLS is enabled on every public table. `anon` has no table privileges.
 - `SECURITY DEFINER` functions pin `search_path = ''`, fully qualify names, and revoke `EXECUTE` from `public`/`anon`.
 - No user HTML is rendered via `innerHTML`. Tiptap renders from schema-validated JSON. Link hrefs are protocol-checked.
@@ -208,7 +208,7 @@ Errors surface through toasts (mutations) and inline states (page loads). Supaba
 
 - **Frontend:** Vercel, framework preset Vite, build `npm run build`, output `dist/`. `vercel.json` rewrites all paths to `/index.html` for client-side routing. Env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
 - **Backend:** hosted Supabase project. Schema via `supabase db push`. Auth settings: email confirmation off, Site URL set to the Vercel URL.
-- **Seed:** `npm run seed` (local, uses the secret key) creates the reviewer accounts and a sample shared document.
+- **Accounts:** no seeded or demo users. Testers sign up through the app (requires "Confirm email" off).
 
 ## 13. Environment variables
 
@@ -216,7 +216,7 @@ Errors surface through toasts (mutations) and inline states (page loads). Supaba
 |---|---|---|
 | `VITE_SUPABASE_URL` | browser | no |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | browser (anon/publishable key) | no (public by design, protected by RLS) |
-| `SUPABASE_SECRET_KEY` | `scripts/seed.ts`, integration tests (local only) | **yes**, never committed, never `VITE_` |
+| `SUPABASE_SECRET_KEY` | optional: integration tests only (local) | **yes**, never committed, never `VITE_` |
 
 `.env.local` is gitignored. `.env.example` documents the names.
 
@@ -229,7 +229,6 @@ ajaia-docs/
 ├── supabase/
 │   ├── config.toml
 │   └── migrations/<timestamp>_init.sql
-├── scripts/seed.ts
 ├── tests/integration/access-control.test.ts
 ├── src/
 │   ├── main.tsx  App.tsx  index.css

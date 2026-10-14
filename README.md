@@ -40,7 +40,7 @@ cp .env.example .env.local      # then fill in values (see below)
 |---|---|---|
 | `VITE_SUPABASE_URL` | Supabase dashboard → Project Settings → API | yes |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Project Settings → API Keys → publishable (or legacy `anon`) key | yes (safe: protected by RLS) |
-| `SUPABASE_SECRET_KEY` | Project Settings → API Keys → secret (or legacy `service_role`) key | **no** — only for `npm run seed` and integration tests; never commit |
+| `SUPABASE_SECRET_KEY` | Project Settings → API Keys → secret (or legacy `service_role`) key | **no** — optional, only for `npm run test:integration`; never commit |
 
 ### Supabase configuration
 
@@ -53,12 +53,9 @@ cp .env.example .env.local      # then fill in values (see below)
 2. **Disable email confirmation** so sign-up works instantly: Dashboard → Authentication → Sign In / Providers → Email → turn off "Confirm email".
 3. **(Deployment only)** Authentication → URL Configuration → set Site URL to your deployed URL.
 
-### Seed reviewer accounts (optional)
+### Test accounts
 
-```bash
-npm run seed   # requires SUPABASE_SECRET_KEY in .env.local
-```
-Creates two demo users and a sample document shared between them (credentials printed by the script and listed in `SUBMISSION.md`).
+There are no seeded or demo accounts. Use **Create account** on the sign-in page to register real users. To try sharing, create two accounts and use a second browser or a private window for the other one.
 
 ## Running locally
 
@@ -72,7 +69,7 @@ npm run dev            # http://localhost:5173
 npm run build              # typecheck + production build
 npm run lint
 npm test                   # unit tests (no network needed)
-npm run test:integration   # RLS/access-control tests against your Supabase project (needs SUPABASE_SECRET_KEY)
+npm run test:integration   # optional: RLS/access-control tests against your Supabase project (needs SUPABASE_SECRET_KEY)
 ```
 
 ## Supported file types (import)

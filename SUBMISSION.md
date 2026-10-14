@@ -14,20 +14,15 @@
 
 ## Reviewer access
 
-| Account | Email | Password | Status |
-|---|---|---|---|
-| Reviewer A (owner) | `<PENDING — created by npm run seed>` | `<PENDING>` | ⏳ |
-| Reviewer B (collaborator) | `<PENDING>` | `<PENDING>` | ⏳ |
+There are no seeded or demo accounts. Reviewers sign up as real users (email confirmation is disabled, so accounts work immediately).
 
-You can also sign up with any email (email confirmation is disabled).
-
-**Suggested 3-minute test:** sign in as A → open the sample doc → Share with B as Viewer → sign in as B (another browser/incognito) → "Shared with me" → doc is read-only → as A switch B to Editor → B edits → A reloads and sees the edits.
+**Suggested 3-minute test:** create account A → create a document → create account B in another browser/private window → as A, Share with B's email as Viewer → as B, "Shared with me" → doc is read-only → as A, switch B to Editor → B edits → A reloads and sees the edits.
 
 ## Deliverables checklist (from `idea.md`)
 
 | Deliverable | File / location | Status |
 |---|---|---|
-| Source code | repo root (`src/`, `supabase/`, `tests/`, `scripts/`) | ⏳ |
+| Source code | repo root (`src/`, `supabase/`, `tests/`) | ⏳ |
 | README with local setup and run instructions | `README.md` | 🟠 drafted, not yet verified from a clean clone |
 | Architecture note (priorities and trade-offs) | `architecture.md` | 🟠 design written, will be updated to match the code |
 | AI workflow note | `AI_WORKFLOW.md` | 🟠 in progress |
@@ -35,7 +30,7 @@ You can also sign up with any email (email confirmation is disabled).
 | Live product URL | above | ⏳ |
 | Walkthrough video URL text file | `WALKTHROUGH_VIDEO_URL.txt` | ⏳ placeholder |
 | Screenshots / demo GIF | `docs/screenshots/` | ⏳ |
-| Credentials / seeded users | above | ⏳ |
+| Test accounts | self sign-up (see Reviewer access) | ⏳ |
 | Automated tests | `src/**/*.test.ts`, `tests/integration/` | ⏳ |
 | Supporting docs | `PRD.md`, `plan.md`, `memory.md` | ✅ initial versions written |
 

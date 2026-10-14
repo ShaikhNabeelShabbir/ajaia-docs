@@ -8,7 +8,6 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { errorMessage } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './auth-context'
-import { DEMO_ACCOUNTS, DEMO_PASSWORD } from './demoAccounts'
 
 type Mode = 'sign-in' | 'sign-up'
 
@@ -25,23 +24,18 @@ export function LoginPage() {
   const from = (location.state as { from?: Location } | null)?.from?.pathname ?? '/'
   if (!loading && user) return <Navigate to={from} replace />
 
-  async function authenticate(nextEmail: string, nextPassword: string, nextMode: Mode, isDemo = false) {
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault()
     setError(null)
     setNotice(null)
     setSubmitting(true)
+    const credentials = { email: email.trim(), password }
     try {
-      if (nextMode === 'sign-in') {
-        const { error } = await supabase.auth.signInWithPassword({ email: nextEmail, password: nextPassword })
-        // Demo accounts create themselves on first use, so reviewers need no seed script or secret key.
-        if (error?.code === 'invalid_credentials' && isDemo) {
-          const signUp = await supabase.auth.signUp({ email: nextEmail, password: nextPassword })
-          if (signUp.error) throw signUp.error
-          if (!signUp.data.session) setNotice('Demo account created, but this project requires email confirmation.')
-        } else if (error) {
-          throw error
-        }
+      if (mode === 'sign-in') {
+        const { error } = await supabase.auth.signInWithPassword(credentials)
+        if (error) throw error
       } else {
-        const { data, error } = await supabase.auth.signUp({ email: nextEmail, password: nextPassword })
+        const { data, error } = await supabase.auth.signUp(credentials)
         if (error) throw error
         // Only happens if email confirmation is enabled on the Supabase project.
         if (!data.session) setNotice('Check your inbox to confirm your email, then sign in.')
@@ -51,18 +45,6 @@ export function LoginPage() {
     } finally {
       setSubmitting(false)
     }
-  }
-
-  function onSubmit(e: FormEvent) {
-    e.preventDefault()
-    void authenticate(email.trim(), password, mode)
-  }
-
-  function signInAsDemo(demoEmail: string) {
-    setMode('sign-in')
-    setEmail(demoEmail)
-    setPassword(DEMO_PASSWORD)
-    void authenticate(demoEmail, DEMO_PASSWORD, 'sign-in', true)
   }
 
   return (
@@ -86,7 +68,7 @@ export function LoginPage() {
             </TabsList>
           </Tabs>
 
-          <form onSubmit={onSubmit} className="space-y-4" noValidate={false}>
+          <form onSubmit={(e) => void onSubmit(e)} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" />
@@ -117,27 +99,6 @@ export function LoginPage() {
             </Button>
           </form>
         </div>
-
-        <section aria-labelledby="demo-heading" className="mt-6 rounded-xl border border-dashed p-4">
-          <h2 id="demo-heading" className="text-sm font-medium">Reviewing? Use a demo account</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Open the other account in a private window to try sharing.
-          </p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            {DEMO_ACCOUNTS.map((account) => (
-              <Button
-                key={account.email}
-                variant="outline"
-                className="h-auto flex-col items-start gap-0 py-2 text-left"
-                disabled={submitting}
-                onClick={() => signInAsDemo(account.email)}
-              >
-                <span className="font-medium">Sign in as {account.name}</span>
-                <span className="text-xs font-normal text-muted-foreground">{account.hint}</span>
-              </Button>
-            ))}
-          </div>
-        </section>
       </div>
     </main>
   )

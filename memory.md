@@ -13,7 +13,8 @@ _Last updated: 2026-10-14 ~11:55 IST_
 - Supabase Auth "Confirm email" is still **ON** (`mailer_autoconfirm: false`) → sign-ups need confirmation. User must toggle it off in the dashboard.
 
 ## Decisions since last update
-- User prefers browser testing over secret-key scripts (seed, integration test). Demo buttons now self-provision accounts via public sign-up (`LoginPage.authenticate`, `isDemo`).
+- User wants to test as real users: **all demo content removed** (Alice/Bob demo buttons, `demoAccounts.ts`, `scripts/seed.ts`, `npm run seed`, `tsx`). Demo accounts never existed in the DB (verified). No secret-key scripts are run.
+- `shadcn` moved to devDependencies (build-time CSS only) → `npm audit --omit=dev` clean.
 - Migrations pushed with `supabase db push --db-url` over the session pooler (5432), not the transaction pooler (6543).
 
 ## Next 3 actions

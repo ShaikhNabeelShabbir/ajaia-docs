@@ -78,7 +78,9 @@ _All Phase 2 code is written and type-checks; nothing is marked `[x]` until exer
 | 3.2 | [-] Integration test `tests/integration/access-control.test.ts` (7 cases) | 1.6 | Written; not run (user prefers no secret-key scripts). Same rules verified via SQL as two users in a rolled-back transaction (22/22) ✔ |
 | 3.3 | [~] Seed script and demo accounts — **removed at user request**; testing uses real sign-ups | — | No demo code or accounts remain ✔ |
 | 3.4 | [-] Lint + typecheck + production build | all | Passing as of 11:33 (re-run at end); editor + importer code-split |
-| 3.5 | [-] `vercel.json` SPA rewrite ✔; git init; deploy to Vercel; set env vars | 3.4 | Live URL loads; deep link `/d/:id` refresh works |
+| 3.4b | [x] Secrets hygiene: `npm run db:push` (local-only `DATABASE_URL`), build guard against secrets in `VITE_*`, Vitest env narrowed, `.env.example` + README documented | — | Guard rejects `VITE_DATABASE_URL` and `sb_secret_` ✔; bundle scan finds no secret/DB URL ✔; 6 unit tests ✔ |
+| 3.4c | [x] Document local DB option (Supabase local stack) and why plain Postgres isn't supported | — | README + architecture D6 ✔ |
+| 3.5 | [-] `vercel.json` SPA rewrite ✔; git repo + push ✔ (by candidate); deploy to Vercel; set the 2 env vars | 3.4 | Live URL loads; deep link `/d/:id` refresh works |
 | 3.6 | [ ] Supabase auth Site URL / redirect URLs → Vercel domain | 3.5 | Sign-in works on live URL |
 | 3.7 | [ ] Live verification of J1–J5 with two real sign-ups (desktop + 375 px mobile) | 3.5 | Checklist below all ticked |
 | 3.8 | [ ] Screenshots to `docs/screenshots/` | 3.7 | Files exist and referenced from SUBMISSION.md |

@@ -8,6 +8,7 @@
     ]
   },
   "include": [
+    "scripts",
     "tests",
     "src"
   ]

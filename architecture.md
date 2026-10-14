@@ -1,6 +1,6 @@
 # Architecture — Ajaia Docs
 
-> Status: **initial design (Phase 0)**. Sections marked _(planned)_ are not implemented yet. This file is updated as the implementation lands.
+> Status: **implemented (MVP)**: schema applied to the hosted project and RLS verified against it. Deployment is in progress. Kept in sync with the code.
 
 ---
 
@@ -42,7 +42,7 @@ There is **no custom application server**. The browser talks to Supabase with th
 | Auth | **Supabase Auth** (email + password) | Smallest real login. Provides `auth.uid()` for RLS. |
 | Database | **Supabase Postgres** | Required persistence. `jsonb` for rich text. RLS for authorization. |
 | DB access | **supabase-js → PostgREST**, plus one RPC | See D1/D2. |
-| Migrations | **Supabase CLI SQL migrations** (`supabase/migrations/*.sql`, applied with `supabase db push`) | Plain SQL expresses RLS, grants, triggers, and functions directly. |
+| Migrations | **Supabase CLI SQL migrations** (`supabase/migrations/*.sql`, applied with `npm run db:push` → `supabase db push --db-url`) | Plain SQL expresses RLS, grants, triggers, and functions directly. |
 | Tests | **Vitest** (+ jsdom) | Same toolchain as Vite. Unit tests plus RLS integration tests against the real project. |
 | Hosting | **Vercel** (static SPA) + **Supabase** (managed backend) | Free tiers. Zero servers to operate. |
 
@@ -72,8 +72,17 @@ Both roles are cheap to enforce with RLS and make enforcement demonstrable (a vi
 ### D5 — Autosave, last-write-wins
 Debounced autosave (~1 s), serialized per document (one request in flight; the latest content is queued). Concurrent editors overwrite each other. This is an explicit, disclosed trade-off versus CRDT real-time collaboration.
 
-### D6 — Hosted Supabase only, no local Docker stack
-Per project direction, there is no Docker. Development and production use one hosted Supabase project (free tier). Migrations are applied with `supabase db push`, or by pasting the SQL into the dashboard SQL editor; neither needs Docker. Trade-off: no disposable local DB. Integration tests create throwaway users and clean up after themselves.
+### D6 — Hosted Supabase for this build; local stack documented
+Per project direction, this build uses no Docker. Development and production share one hosted Supabase project (free tier), and migrations are applied from a developer machine with `npm run db:push` (D8). Trade-off: no disposable local DB.
+
+Other developers can instead run the **Supabase local stack** (`supabase start`, needs Docker). It provides Postgres plus the REST API and Auth the browser depends on, and applies the same migrations; see README → "Using a local database". A **plain Postgres on its own is not supported**: the browser talks to PostgREST and GoTrue, and the schema relies on `auth.users`, `auth.uid()` and the `anon`/`authenticated` roles, so it would need the rejected API-server design (D1/D2).
+
+### D8 — Database credentials are local-only and temporary
+Applying migrations needs a full-privilege Postgres connection string, which bypasses RLS. Nothing at runtime needs one: the browser only uses the publishable key plus the user's JWT. So:
+- `DATABASE_URL` lives only in the developer's gitignored `.env.local`, while migrations run. `scripts/db-push.mjs` reads it, normalizes it (encodes the password; transaction pooler 6543 → session pooler 5432) and passes it to `supabase db push --db-url` without printing it. The developer then deletes it.
+- It is **never** set in Vercel or any production environment, and never `VITE_`-prefixed. Vite only bundles `VITE_*` variables, and `vite.config.ts` fails the build if a `VITE_*` value looks like a Postgres URL, an `sb_secret_` key or a `service_role` JWT.
+- Vitest loads only `VITE_SUPABASE_*` and `SUPABASE_SECRET_KEY`, never `DATABASE_URL`.
+- Rejected: storing the DB URL in Vercel to run migrations during the build. That would put a full-privilege credential in the deploy environment for a task that happens rarely and deliberately.
 
 ### D7 — Profiles table instead of exposing `auth.users`
 `public.profiles (id, email)` is populated by a trigger on `auth.users`. RLS lets you see only your own profile and the profiles of people you share a document with. There is no global user directory.
@@ -122,7 +131,7 @@ Only three tables. No attachments table (D3) and no versions table (out of scope
 2. **RLS policies** (see below).
 3. **`SECURITY DEFINER` functions** with `set search_path = ''`, `EXECUTE` revoked from `public`/`anon`.
 
-**RLS policies** _(planned; implemented in `supabase/migrations/`)_
+**RLS policies** (implemented in `supabase/migrations/20261014054005_init.sql`; verified against the live database, see §11)
 
 Helper functions in schema `private` (not exposed by PostgREST, `SECURITY DEFINER`, so they don't recurse into RLS):
 - `private.is_document_owner(doc uuid) → bool`
@@ -190,6 +199,7 @@ Errors surface through toasts (mutations) and inline states (page loads). Supaba
 ## 10. Security considerations
 
 - Only the **publishable** key (`VITE_SUPABASE_PUBLISHABLE_KEY`) reaches the browser. The secret/service-role key is used **only** by the optional local integration tests and never has a `VITE_` prefix.
+- `DATABASE_URL` is local-only and temporary (D8). A build guard rejects secrets in `VITE_*` variables. A scan of the production bundle confirmed it contains no secret key, Postgres URL or pooler host.
 - RLS is enabled on every public table. `anon` has no table privileges.
 - `SECURITY DEFINER` functions pin `search_path = ''`, fully qualify names, and revoke `EXECUTE` from `public`/`anon`.
 - No user HTML is rendered via `innerHTML`. Tiptap renders from schema-validated JSON. Link hrefs are protocol-checked.
@@ -200,47 +210,53 @@ Errors surface through toasts (mutations) and inline states (page loads). Supaba
 
 | Layer | What | Where |
 |---|---|---|
-| Unit | Import validation (type/size/empty/encoding). txt → doc. md → doc preserves headings/lists/marks. `javascript:` links stripped. Output validates against the editor schema. | `src/features/file-import/*.test.ts` |
-| Integration (DB) | Two throwaway users: no access by default. Viewer can read, can't update. Editor can update. Non-owner can't share/delete. Revoke removes access. | `tests/integration/access-control.test.ts` (skipped unless env vars present) |
-| Manual | J1–J5 on the deployed URL, mobile width check, keyboard navigation | `plan.md` Phase 3 checklist |
+| Unit (33, `npm test`) | Import validation (type/size/empty/encoding). txt/md → doc preserves structure and validates against the editor schema. `javascript:` links stripped. Autosave queue (debounce, serial saves, retry). `db:push` URL normalization. | `src/**/*.test.ts`, `scripts/db-push.test.ts` |
+| DB permissions (run on the live project) | 22 scenarios as two temporary users (stranger → viewer → editor → revoked, plus anon), via SQL role/JWT impersonation inside a rolled-back transaction | Recorded in `AI_WORKFLOW.md` |
+| Integration (optional) | Same rules through the real API with throwaway users | `tests/integration/access-control.test.ts` (skips without `SUPABASE_SECRET_KEY`) |
+| Manual | J1–J5 in the browser (local, then deployed), mobile width, keyboard | `plan.md` Phase 3 checklist |
 
 ## 12. Deployment
 
-- **Frontend:** Vercel, framework preset Vite, build `npm run build`, output `dist/`. `vercel.json` rewrites all paths to `/index.html` for client-side routing. Env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
-- **Backend:** hosted Supabase project. Schema via `supabase db push`. Auth settings: email confirmation off, Site URL set to the Vercel URL.
+- **Frontend:** Vercel, framework preset Vite, build `npm run build`, output `dist/`. `vercel.json` rewrites all paths to `/index.html` for client-side routing. Env vars: **only** `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+- **Backend:** hosted Supabase project. Schema changes are applied from a developer machine with `npm run db:push` (D8), never during the Vercel build. Auth settings: email confirmation off, Site URL set to the Vercel URL.
 - **Accounts:** no seeded or demo users. Testers sign up through the app (requires "Confirm email" off).
 
 ## 13. Environment variables
 
-| Variable | Used by | Secret? |
-|---|---|---|
-| `VITE_SUPABASE_URL` | browser | no |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | browser (anon/publishable key) | no (public by design, protected by RLS) |
-| `SUPABASE_SECRET_KEY` | optional: integration tests only (local) | **yes**, never committed, never `VITE_` |
+| Variable | Used by | Local `.env.local` | Vercel | Secret? |
+|---|---|---|---|---|
+| `VITE_SUPABASE_URL` | browser | ✅ | ✅ | no |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | browser | ✅ | ✅ | no (public by design, protected by RLS) |
+| `DATABASE_URL` | `npm run db:push` only | temporary, then deleted | ❌ | **yes**: full DB access, bypasses RLS |
+| `SUPABASE_SECRET_KEY` | optional integration tests | optional | ❌ | **yes**: bypasses RLS |
 
-`.env.local` is gitignored. `.env.example` documents the names.
+`.env.local` is gitignored (git history verified clean). `.env.example` documents every variable and where it may live.
 
-## 14. Folder structure _(planned; updated as built)_
+## 14. Folder structure
 
 ```
 ajaia-docs/
 ├── idea.md  PRD.md  architecture.md  plan.md  memory.md
 ├── README.md  SUBMISSION.md  AI_WORKFLOW.md  WALKTHROUGH_VIDEO_URL.txt
+├── .env.example                  # documents every variable and where it may live
 ├── supabase/
-│   ├── config.toml
-│   └── migrations/<timestamp>_init.sql
-├── tests/integration/access-control.test.ts
+│   ├── config.toml               # local-stack settings (also used by `supabase link`)
+│   └── migrations/20261014054005_init.sql
+├── scripts/
+│   ├── db-push.mjs               # applies migrations via DATABASE_URL (never printed)
+│   └── db-push.test.ts
+├── tests/integration/access-control.test.ts   # optional, needs SUPABASE_SECRET_KEY
 ├── src/
-│   ├── main.tsx  App.tsx  index.css
-│   ├── components/ui/            # shadcn primitives
-│   ├── components/               # AppShell, ProtectedRoute, EmptyState…
-│   ├── features/auth/            # AuthProvider, LoginPage
+│   ├── main.tsx  App.tsx  index.css  env.d.ts
+│   ├── components/ui/            # shadcn primitives (generated)
+│   ├── components/               # AppHeader, StateMessage
+│   ├── features/auth/            # AuthProvider, auth-context, ProtectedRoute, LoginPage
 │   ├── features/documents/       # api, hooks, DocumentsPage
-│   ├── features/editor/          # EditorPage, Toolbar, extensions, useAutosave
-│   ├── features/sharing/         # ShareDialog, api
-│   ├── features/file-import/     # validate, convert, ImportDialog, tests
-│   └── lib/                      # supabase client, errors, database.types, utils
-├── vercel.json  .env.example  package.json  vite.config.ts
+│   ├── features/editor/          # EditorPage, Toolbar, TitleInput, schema, saveQueue (+test), useAutosave
+│   ├── features/sharing/         # api, hooks, ShareDialog
+│   ├── features/file-import/     # validate, convert (+test), ImportDialog
+│   └── lib/                      # supabase client, database.types (generated), errors, format, utils
+├── vercel.json  package.json  vite.config.ts (incl. secret guard)  tsconfig*.json  components.json
 ```
 
 ## 15. Trade-off summary
@@ -252,4 +268,5 @@ ajaia-docs/
 | Client-side import | Storage + server parse | The file is transient. The schema-constrained parser is the safety boundary. |
 | Autosave LWW | Yjs real-time | Fits the timebox. Disclosed limitation. |
 | Viewer + editor | Single role | Makes enforcement visible and testable at low cost. |
-| Hosted Supabase only | Local Docker stack | No Docker available. One environment is simpler for a 5-hour build. |
+| Hosted Supabase for this build | Local Docker stack | No Docker here; one environment is simpler for a 5-hour build. The local stack stays documented for others. |
+| Local-only, temporary `DATABASE_URL` | DB credentials in Vercel/CI | The runtime never needs DB access; migrations are rare and deliberate. |

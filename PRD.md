@@ -132,7 +132,7 @@ Only the owner can share, change roles, revoke, or delete. Editors cannot re-sha
 
 | Area | Requirement |
 |---|---|
-| Security | No privileged secrets in the frontend. Authorization enforced via Postgres RLS, column grants, and `SECURITY DEFINER` functions. Rendering never injects user HTML. |
+| Security | No privileged secrets in the frontend or the production environment (the DB connection string is local-only and temporary). Authorization enforced via Postgres RLS, column grants, and `SECURITY DEFINER` functions. Rendering never injects user HTML. |
 | Usability | Minimal, calm UI. Clear hierarchy. Keyboard-accessible controls with visible focus states. Labelled inputs. Destructive actions confirmed. |
 | Responsiveness | Usable from 360 px mobile width to desktop. Toolbar wraps or scrolls on small screens. |
 | Performance | Documents list never loads document bodies. Saves are debounced (~1 s) and serialized, so only one request is in flight per document. |
@@ -165,7 +165,7 @@ These come next if time allows or in a follow-up. They are not part of the assig
 1. Collaborators must already have an account. Sharing looks up a registered user by email.
 2. Revealing whether an email is registered (in the share dialog) is acceptable for an internal tool.
 3. Last-write-wins is acceptable for concurrent editors in this slice.
-4. A single hosted Supabase project (free tier) serves both local development and production. There is no local Docker stack (decision recorded in `architecture.md`).
+4. A single hosted Supabase project (free tier) serves both local development and production. The Supabase local stack (Docker) is documented as an option for other developers; a plain Postgres alone is not supported (`architecture.md` D6).
 5. Email confirmation is disabled on the Supabase project so reviewers can sign up instantly. There are deliberately no seeded/demo accounts: testing uses real sign-ups.
 6. Markdown import targets CommonMark/GFM basics. Unsupported constructs (images, tables) are dropped or flattened to text.
 

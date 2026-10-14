@@ -22,34 +22,40 @@ There are no seeded or demo accounts. Reviewers sign up as real users (email con
 
 | Deliverable | File / location | Status |
 |---|---|---|
-| Source code | repo root (`src/`, `supabase/`, `tests/`) | ⏳ |
-| README with local setup and run instructions | `README.md` | 🟠 drafted, not yet verified from a clean clone |
-| Architecture note (priorities and trade-offs) | `architecture.md` | 🟠 design written, will be updated to match the code |
+| Source code | repo root (`src/`, `supabase/`, `scripts/`, `tests/`); GitHub `ShaikhNabeelShabbir/ajaia-docs` | 🟡 pushed (latest local commit not yet pushed at last check) |
+| README with local setup and run instructions | `README.md` | 🟡 complete (setup, env vars, DB setup, local-DB option, deploy); clean-clone re-run pending |
+| Architecture note (priorities and trade-offs) | `architecture.md` | 🟡 matches the code; final pass after deploy |
 | AI workflow note | `AI_WORKFLOW.md` | 🟠 in progress |
 | SUBMISSION.md listing what is included | this file | 🟠 in progress |
 | Live product URL | above | ⏳ |
 | Walkthrough video URL text file | `WALKTHROUGH_VIDEO_URL.txt` | ⏳ placeholder |
 | Screenshots / demo GIF | `docs/screenshots/` | ⏳ |
 | Test accounts | self sign-up (see Reviewer access) | ⏳ |
-| Automated tests | `src/**/*.test.ts`, `tests/integration/` | ⏳ |
+| Automated tests | `src/**/*.test.ts`, `scripts/db-push.test.ts`, `tests/integration/` | ✅ unit 33/33 passing |
 | Supporting docs | `PRD.md`, `plan.md`, `memory.md` | ✅ initial versions written |
 
 ## Feature status
 
 | Capability | Status | Notes |
 |---|---|---|
-| 1. Create / rename / edit / save / reopen, rich text | ⏳ | |
-| 2. File import (`.txt`, `.md`) | ⏳ | |
-| 3. Sharing (owner, viewer/editor, owned vs shared) | ⏳ | |
-| 4. Persistence (Postgres, JSON rich text, shares) | ⏳ | |
-| 5. Quality: tests, validation, deployment, docs | ⏳ | |
+| 1. Create / rename / edit / save / reopen, rich text | 🟡 | Manually tested locally by the candidate; live-URL check pending |
+| 2. File import (`.txt`, `.md`) | 🟡 | Conversion + validation unit-tested; manually tested locally |
+| 3. Sharing (owner, viewer/editor, owned vs shared) | 🟡 | DB rules verified on the live project (22 scenarios); UI manually tested locally |
+| 4. Persistence (Postgres, JSON rich text, shares) | 🟡 | Schema live on Supabase; live-URL check pending |
+| 5. Quality: tests, validation, deployment, docs | 🟠 | Tests, validation, docs done; deployment pending |
 
 ## Automated tests
 
 | Suite | Command | Last result |
 |---|---|---|
-| Unit (import) | `npm test` | not yet run |
-| Integration (RLS) | `npm run test:integration` | not yet run |
+| Unit (import, autosave queue, db:push URL handling) | `npm test` | ✅ 33/33 passing |
+| DB permissions on the live project | SQL impersonation, rolled back (see `AI_WORKFLOW.md`) | ✅ 22/22 as expected |
+| Integration via API (optional) | `npm run test:integration` | not run (needs `SUPABASE_SECRET_KEY`; skipped by choice) |
+
+## Environment and secrets (for anyone running or deploying it)
+
+- Production (Vercel) needs only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+- `DATABASE_URL` is used **only locally** to apply the schema (`npm run db:push`), then deleted. It is never deployed and never reaches the browser (build guard + bundle scan). Details: README → "Environment variables".
 
 ## Known limitations
 

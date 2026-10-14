@@ -21,7 +21,10 @@
 |---|---|---|
 | The brief's suggested stack included **Drizzle ORM** | **Rejected** | Needs a privileged server-side Postgres connection that bypasses RLS. Would add a server tier just to host it. See architecture D1. |
 | The brief's suggested stack included **Supabase Edge Functions** | **Not used** | The one privileged operation (lookup user by email + create share) is safer and simpler as an owner-checked `SECURITY DEFINER` SQL function (D2). |
-| Run a local Supabase stack via Docker | **Rejected by candidate** | No Docker. Switched to hosted Supabase plus `supabase db push` (D6). |
+| Run a local Supabase stack via Docker | **Rejected by candidate** | No Docker. Switched to hosted Supabase plus `supabase db push` (D6). The local stack is still documented for other developers. |
+| Seeded demo accounts (Alice/Bob) with one-click login and a seed script | **Rejected by candidate** | The candidate wanted the product tested as real users would. Demo buttons, `demoAccounts.ts`, the seed script and the `tsx` dependency were removed. Reviewers sign up instead. |
+| Run the seed and integration tests with the Supabase secret key | **Not used, by candidate's choice** | Avoids depending on a key that bypasses RLS. The same RLS rules were verified with SQL impersonation in a rolled-back transaction instead. |
+| Keep `DATABASE_URL` in `.env.local` for migrations | **Accepted, then hardened by AI review** | Asked whether it was secure enough. Added a build guard against secrets in `VITE_*`, stopped Vitest from loading `DATABASE_URL`, added a `db:push` script that never prints it, and documented "delete after use". |
 | Markdown import via `marked` → HTML → DOM parse | **Replaced** | After inspecting the `@tiptap/markdown` 3.32 type definitions, `MarkdownManager.parse()` turned out to parse directly into the editor schema with no HTML step. Simpler and smaller attack surface. |
 | Trusting the Markdown parser's output as-is | **Changed** | Reading the Link extension source showed `parseMarkdown` copies `href` verbatim (`javascript:` survives into stored JSON), and `####` produces a heading level the editor renders as H1. Added a sanitize pass plus tests for both. |
 | Embedding the owner as `profiles(email)` | **Changed before running** | `document_shares` is a junction between documents and profiles, so PostgREST would see two relationships and reject the embed as ambiguous. Pinned to `profiles!documents_owner_id_fkey`. |
@@ -36,7 +39,8 @@
 - **Secrets handling:** API keys were fetched with the Supabase CLI and written straight to a gitignored `.env.local` (mode 600) without printing them.
 - **Database permissions (run against the live project):** after applying the migration, the catalog was inspected (RLS on every table, 7 policies, `anon` has no table privileges, clients can only write `title`/`content`). Then 22 scenarios were run as two temporary users (stranger → viewer → editor → revoked, plus anonymous) inside a single transaction that was rolled back. Every result matched the expected allow/deny, and no data was left behind. The candidate preferred browser testing over secret-key scripts, so the Vitest integration suite stays in the repo but was not run.
 - **Credential hygiene:** the database connection string was added temporarily by the candidate, used only for `db push` and the checks above (password never printed), then removed from `.env.local`.
-- _(Pending:)_ manual J1–J5 run in the browser, locally and on the live URL.
+- **Secrets and environment (verified):** `DATABASE_URL` is local-only and temporary, applied through `npm run db:push`, which never prints it. Two checks were run rather than assumed: the build guard was triggered on purpose (`VITE_DATABASE_URL` and an `sb_secret_` value both made the build fail), and the production bundle was scanned for the real secret key, Postgres URLs and the pooler host (none found). One `sb_secret_` match turned out to be supabase-js's own key-format check, not a key. Git history was scanned too: `.env.local` was never committed, and `.env.example` only ever held placeholders.
+- **Manual browser testing:** done locally by the candidate, who reported it working. Live-URL run pending.
 
 ## Remaining risks
 

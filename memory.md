@@ -1,29 +1,37 @@
 # Working Memory — Ajaia Docs
 
-_Last updated: 2026-10-14 ~11:55 IST_
+_Last updated: 2026-10-14 ~12:30 IST_
 
 ## Current state
-- Schema **applied** to Supabase `ajaia-docs` (ref `arjyzsauhprjqhbpqikf`). Verified: RLS on all tables, 7 policies, column grants, triggers; 22 permission checks run as two temp users inside a rolled-back transaction all matched expectations. DB left empty.
-- `DATABASE_URL` was added by the user only for the push and has been **removed** from `.env.local`. `.env.local` = URL + publishable key + secret key (secret unused by choice).
-- Types regenerated from live schema; `tsc`, lint, build, 27 unit tests pass.
-- Dev server: `npm run dev` → http://localhost:5173 (running in background).
-- **User is now testing in the browser.** No browser journey verified yet.
+- MVP works locally against hosted Supabase `ajaia-docs` (ref `arjyzsauhprjqhbpqikf`). Candidate tested it in the browser as real users and reported it looks fine.
+- Schema live; RLS verified with 22 rolled-back SQL scenarios. DB contains only the candidate's real test data.
+- Repo: GitHub `ShaikhNabeelShabbir/ajaia-docs`, pushed by candidate. At last check, local `main` was 1 commit ahead of `origin/main`, and the env/docs changes below are uncommitted (the candidate handles git).
+- Checks: `tsc -b`, lint, 33 unit tests, build all pass. Production deps audit clean.
+
+## Env / secrets model (agreed with candidate)
+- `.env.local` (gitignored): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`; `DATABASE_URL` only while running `npm run db:push`, then deleted; `SUPABASE_SECRET_KEY` optional and unused.
+- Vercel: only the two `VITE_` vars. Never `DATABASE_URL` or the secret key.
+- Guards: `vite.config.ts` fails the build if a `VITE_*` value looks like a Postgres URL, an `sb_secret_` key or a service_role JWT. Vitest loads only `VITE_SUPABASE_*` + `SUPABASE_SECRET_KEY`.
+- `scripts/db-push.mjs`: reads `DATABASE_URL`, URL-encodes the password, switches pooler 6543→5432, rejects the placeholder, never prints the URL (unit-tested).
+- Local DB option documented: Supabase local stack (Docker). Plain Postgres is not supported (needs PostgREST + GoTrue + auth schema).
+
+## Decisions log
+- No Drizzle, no Edge Functions; supabase-js + RLS + `share_document` RPC.
+- No Docker for this build; hosted Supabase only.
+- No demo/seed accounts (candidate wants real-user testing); no secret-key scripts run.
+- `shadcn` is a devDependency (build-time CSS only).
 
 ## Blockers
-- Supabase Auth "Confirm email" is still **ON** (`mailer_autoconfirm: false`) → sign-ups need confirmation. User must toggle it off in the dashboard.
-
-## Decisions since last update
-- User wants to test as real users: **all demo content removed** (Alice/Bob demo buttons, `demoAccounts.ts`, `scripts/seed.ts`, `npm run seed`, `tsx`). Demo accounts never existed in the DB (verified). No secret-key scripts are run.
-- `shadcn` moved to devDependencies (build-time CSS only) → `npm audit --omit=dev` clean.
-- Migrations pushed with `supabase db push --db-url` over the session pooler (5432), not the transaction pooler (6543).
+- None. "Confirm email" is OFF (verified 12:30 via `/auth/v1/settings`).
 
 ## Next 3 actions
-1. User toggles "Confirm email" off; walk J1–J5 in the browser; fix issues found.
-2. git init + deploy to Vercel; set Auth Site URL to the Vercel domain.
-3. Update architecture.md folder tree, SUBMISSION.md statuses, AI_WORKFLOW.md.
+1. Candidate commits/pushes; deploy to Vercel with the 2 `VITE_` vars; set the Supabase Site URL to the Vercel domain.
+2. Run J1–J5 on the live URL (desktop + 375 px), fill in SUBMISSION live URL + statuses.
+3. Screenshots, walkthrough outline, final requirement audit vs idea.md.
 
 ## Gotchas
-- PostgREST owner embed must use `profiles!documents_owner_id_fkey` (document_shares is a junction).
+- PostgREST owner embed needs `profiles!documents_owner_id_fkey`.
 - RLS-blocked UPDATE/DELETE return 0 rows → always `.select()`.
 - Tiptap Link `parseMarkdown` keeps unsafe hrefs → sanitized on import.
-- `supabase migration new` hangs without TTY (reads stdin). CLI 2.120 rejects malformed `.env.local` lines.
+- `supabase migration new` hangs without TTY. CLI 2.120 rejects malformed `.env.local` lines and needs its own login.
+- CLI 2.31 `db push` needs the password (link doesn't). Migrations should use the session pooler (5432).

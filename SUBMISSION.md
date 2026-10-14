@@ -7,9 +7,9 @@
 
 | Item | Value | Status |
 |---|---|---|
-| Live product URL | https://ajaia-docs-nu-peach.vercel.app | ✅ live (⚠ redeploy to ship the import fix below) |
-| Walkthrough video | `<PENDING — Loom/YouTube URL>` (also in `WALKTHROUGH_VIDEO_URL.txt`) | ⏳ |
-| Google Drive folder | `<PENDING — prepared by candidate>` | ⏳ |
+| Live product URL | https://ajaia-docs-nu-peach.vercel.app | ✅ live (import fix deployed) |
+| Walkthrough video | https://drive.google.com/file/d/1q3_OBfER6rHK7AJIY4TFanawDmiH6uO4/view?usp=drive_link (also in `WALKTHROUGH_VIDEO_URL.txt`) | ✅ |
+| Google Drive folder | https://drive.google.com/drive/folders/1FY2_UjdxxEL0ect99hCTAME-Wkrorq_J?usp=sharing | ✅ |
 | Source repository | https://github.com/ShaikhNabeelShabbir/ajaia-docs | ✅ |
 
 ## Reviewer access
@@ -22,17 +22,17 @@ There are no seeded or demo accounts. Reviewers sign up as real users (email con
 
 | Deliverable | File / location | Status |
 |---|---|---|
-| Source code | repo root (`src/`, `supabase/`, `scripts/`, `tests/`); GitHub `ShaikhNabeelShabbir/ajaia-docs` | 🟡 pushed (latest local commit not yet pushed at last check) |
-| README with local setup and run instructions | `README.md` | 🟡 complete (setup, env vars, DB setup, local-DB option, deploy); clean-clone re-run pending |
-| Architecture note (priorities and trade-offs) | `architecture.md` | 🟡 matches the code; final pass after deploy |
+| Source code | repo root (`src/`, `supabase/`, `scripts/`, `tests/`); GitHub `ShaikhNabeelShabbir/ajaia-docs` | ✅ pushed (in sync with origin/main) |
+| README with local setup and run instructions | `README.md` | ✅ setup, env vars, DB setup, local-DB option, deploy |
+| Architecture note (priorities and trade-offs) | `architecture.md` | ✅ matches the deployed code |
 | AI workflow note | `AI_WORKFLOW.md` | ✅ complete |
 | SUBMISSION.md listing what is included | this file | ✅ complete |
 | Live product URL | https://ajaia-docs-nu-peach.vercel.app | ✅ live |
-| Walkthrough video URL text file | `WALKTHROUGH_VIDEO_URL.txt` | ⏳ placeholder |
-| Screenshots / demo GIF | `docs/screenshots/` | ⏳ |
+| Walkthrough video URL text file | `WALKTHROUGH_VIDEO_URL.txt` | ✅ contains the video link |
+| Screenshots / demo GIF | not included (live URL + video cover the flow) | ⛔ not needed |
 | Test accounts | self sign-up (see Reviewer access) | ✅ no seeded accounts needed |
 | Automated tests | `src/**/*.test.ts`, `scripts/db-push.test.ts`, `tests/integration/` | ✅ unit 36/36 passing |
-| Supporting docs | `PRD.md`, `plan.md`, `memory.md` | ✅ initial versions written |
+| Supporting docs | `PRD.md`, `plan.md`, `memory.md`, `docs/security-review.md` | ✅ current |
 
 ## Feature status
 
@@ -42,7 +42,7 @@ There are no seeded or demo accounts. Reviewers sign up as real users (email con
 | 2. File import (`.txt`, `.md`) | ✅ | Conversion + validation unit-tested; tested in browser |
 | 3. Sharing (owner, viewer/editor, owned vs shared) | ✅ | RLS verified on live project (22 scenarios); UI tested |
 | 4. Persistence (Postgres, JSON rich text, shares) | ✅ | Live on Supabase; create/read/update verified via live API |
-| 5. Quality: tests, validation, deployment, docs | ✅ | 33 tests, validation, live deployment, security review, docs |
+| 5. Quality: tests, validation, deployment, docs | ✅ | 36 tests, validation, live deployment, security review, docs |
 
 ## Automated tests
 
@@ -70,7 +70,7 @@ There are no seeded or demo accounts. Reviewers sign up as real users (email con
 | Headings / text size | ✅ | H1–H3 + normal text |
 | Bulleted / numbered lists | ✅ | Both, plus quote/strikethrough |
 | **2. File upload** | | |
-| Upload a file into the workflow | ✅ (local) / ⚠ live pending redeploy | Import `.txt`/`.md` → new editable doc. A fix for image/table-heavy files is committed locally but **not yet redeployed**; the live site must be redeployed for import to work on files with images/tables. |
+| Upload a file into the workflow | ✅ | Import `.txt`/`.md` → new editable doc; image/table-heavy files handled (alt text kept, tables fall back to text). Deployed and live. |
 | Supported types stated in UI + README | ✅ | Import dialog + README |
 | **3. Sharing** | | |
 | A document owner | ✅ | `documents.owner_id` |
@@ -88,10 +88,10 @@ There are no seeded or demo accounts. Reviewers sign up as real users (email con
 | At least one meaningful automated test | ✅ | 36 unit tests + RLS verification + optional integration suite |
 | Architecture note | ✅ | `architecture.md` |
 | AI-native workflow note | ✅ | `AI_WORKFLOW.md` |
-| Walkthrough video (3–5 min) | ⏳ | Not recorded; `WALKTHROUGH_VIDEO_URL.txt` placeholder |
+| Walkthrough video (3–5 min) | ✅ | Recorded; link in `WALKTHROUGH_VIDEO_URL.txt` and Links table |
 | SUBMISSION.md listing contents | ✅ | this file |
 | Credentials / test accounts | ✅ | Self sign-up (no seeded accounts needed) |
-| Google Drive folder | ⏳ | Candidate assembles for submission |
+| Google Drive folder | ✅ | Shared folder linked in Links table |
 
 ## Security
 
@@ -111,20 +111,18 @@ Create → format → autosave → refresh (persists) · Import `.md`/`.txt` →
 
 ## What I'd build next with 2–4 more hours
 
-1. Record the walkthrough video and capture screenshots/GIF.
-2. Run the optional Vitest RLS integration suite in CI (it already exists).
-3. Export to Markdown (download), and `.docx` import via `mammoth`.
-4. Optimistic-concurrency warning using `updated_at` (mitigates last-write-wins).
-5. Return a clean response for "no user found" instead of raising (removes the 500).
+1. Run the optional Vitest RLS integration suite in CI (it already exists).
+2. Export to Markdown (download), and `.docx` import via `mammoth`.
+3. Optimistic-concurrency warning using `updated_at` (mitigates last-write-wins).
+4. Return a clean response for "no user found" instead of raising (removes the 500).
+5. Richer Markdown import (tables, images) instead of the current text fallback.
 
-## Walkthrough outline (3–5 min, to record)
+## Walkthrough video
 
-1. Sign up + sign in (email/password; no demo accounts by design).
-2. Create a document, rename it, show formatting (headings, bold/italic/underline, lists), refresh to show persistence.
-3. Import a `.md` file → formatted document.
-4. Share with a second account as Viewer (second browser) → show read-only + "Shared with me".
-5. Upgrade to Editor → edit → owner sees the change.
-6. Revoke → access gone.
-7. Close on key decisions: RLS as the authorization boundary (no Drizzle/Edge Functions), Tiptap JSON persistence, deliberate scope cuts, and how AI was used + verified.
+Recorded (3–5 min): https://drive.google.com/file/d/1q3_OBfER6rHK7AJIY4TFanawDmiH6uO4/view?usp=drive_link
 
-The drive containing the project is at this URl : https://drive.google.com/drive/folders/1FY2_UjdxxEL0ect99hCTAME-Wkrorq_J?usp=sharing
+It covers: sign up / sign in → create, rename, format, and refresh a document → import a `.md` file → share with a second account as Viewer (read-only) → upgrade to Editor and show the edit propagate → revoke access → and the key decisions (RLS as the authorization boundary, Tiptap JSON persistence, deliberate scope cuts, and how AI was used and verified).
+
+## Google Drive submission folder
+
+https://drive.google.com/drive/folders/1FY2_UjdxxEL0ect99hCTAME-Wkrorq_J?usp=sharing

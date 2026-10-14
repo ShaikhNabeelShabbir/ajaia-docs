@@ -82,9 +82,9 @@ _All Phase 2 code is written and type-checks; nothing is marked `[x]` until exer
 | 3.4c | [x] Document local DB option (Supabase local stack) and why plain Postgres isn't supported | — | README + architecture D6 ✔ |
 | 3.5 | [x] Deployed to Vercel (by candidate): https://ajaia-docs-nu-peach.vercel.app | 3.4 | All routes HTTP 200; bundle has no secrets; deployed build matches current code (no demo) ✔ |
 | 3.6 | [x] Email confirmation OFF; sign-up/sign-in work on live API | 3.5 | Two accounts created + authenticated via live API ✔ |
-| 3.7 | [-] Live J1–J5: sharing/persistence verified via live API; browser UI tested by candidate; mobile-width pass pending | 3.5 | API-level matrix ✔; visual mobile check remaining |
-| 3.8 | [ ] Screenshots to `docs/screenshots/` (candidate, for submission) | 3.7 | Files exist and referenced from SUBMISSION.md |
-| 3.9 | [x] Walkthrough outline in SUBMISSION.md | 3.7 | Outline covers all required topics ✔ (video not yet recorded) |
+| 3.7 | [x] Live J1–J5: sharing/persistence verified via live API; browser UI tested by candidate; walkthrough video recorded | 3.5 | API matrix ✔; flows shown in the video ✔ |
+| 3.8 | [~] Screenshots — not included; the live URL + walkthrough video cover the flow | 3.7 | Noted in SUBMISSION deliverables |
+| 3.9 | [x] Walkthrough video recorded + linked in SUBMISSION.md and `WALKTHROUGH_VIDEO_URL.txt` | 3.7 | Video covers all required topics ✔ |
 
 | 3.10 | [x] Security review of live deployment (30+ probes) | 3.5 | No vulns; `docs/security-review.md` ✔ |
 
@@ -103,7 +103,7 @@ _All Phase 2 code is written and type-checks; nothing is marked `[x]` until exer
 - [x] Requirement-by-requirement audit against `idea.md` (table in SUBMISSION.md) ✔ every core requirement ✅
 - [-] Docs match code: architecture folder tree + env model updated ✔; README clean-clone re-run still recommended
 - [x] `memory.md`, `SUBMISSION.md`, `AI_WORKFLOW.md` updated ✔
-- [ ] Prepare Google Drive folder (candidate) + record walkthrough video
+- [x] Google Drive folder assembled and walkthrough video recorded (links in SUBMISSION.md)
 
 ## Optional improvements (only after Phase 3 is green)
 

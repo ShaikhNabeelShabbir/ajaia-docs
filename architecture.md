@@ -1,6 +1,6 @@
 # Architecture — Ajaia Docs
 
-> Status: **implemented (MVP)**: schema applied to the hosted project and RLS verified against it. Deployment is in progress. Kept in sync with the code.
+> Status: **implemented and deployed (MVP)**: live at https://ajaia-docs-nu-peach.vercel.app, schema applied to the hosted project, and RLS verified against it. Kept in sync with the code.
 
 ---
 

@@ -2,7 +2,7 @@
 
 A lightweight collaborative document editor: create and format documents, import `.txt` / `.md` files, and share documents with teammates as **viewers** or **editors**. Built for the Ajaia Full Stack Product Engineer assignment.
 
-> **Status:** the MVP runs locally against a hosted Supabase project and was manually tested in the browser. Deployment is in progress. The live URL and the reviewer guide are in [`SUBMISSION.md`](SUBMISSION.md).
+> **Status:** live and deployed at https://ajaia-docs-nu-peach.vercel.app. The reviewer guide, walkthrough video, and submission checklist are in [`SUBMISSION.md`](SUBMISSION.md).
 
 ## Features
 

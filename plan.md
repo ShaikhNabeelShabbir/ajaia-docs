@@ -74,17 +74,19 @@ _All Phase 2 code is written and type-checks; nothing is marked `[x]` until exer
 
 | # | Task | Depends | Acceptance check |
 |---|---|---|---|
-| 3.1 | [x] Unit tests: import validation + conversion + schema validity + unsafe links; SaveQueue debounce/serialization/retry | 2.7 | `npm test` → 27/27 pass ✔ (11:30) |
+| 3.1 | [x] Unit tests: import validation + conversion + schema validity + unsafe links; SaveQueue; db:push URL | 2.7 | `npm test` → 33/33 pass ✔ |
 | 3.2 | [-] Integration test `tests/integration/access-control.test.ts` (7 cases) | 1.6 | Written; not run (user prefers no secret-key scripts). Same rules verified via SQL as two users in a rolled-back transaction (22/22) ✔ |
 | 3.3 | [~] Seed script and demo accounts — **removed at user request**; testing uses real sign-ups | — | No demo code or accounts remain ✔ |
-| 3.4 | [-] Lint + typecheck + production build | all | Passing as of 11:33 (re-run at end); editor + importer code-split |
+| 3.4 | [x] Lint + typecheck + production build | all | `tsc -b`, `oxlint`, `vite build` all pass; editor + importer code-split; prod deps audit clean |
 | 3.4b | [x] Secrets hygiene: `npm run db:push` (local-only `DATABASE_URL`), build guard against secrets in `VITE_*`, Vitest env narrowed, `.env.example` + README documented | — | Guard rejects `VITE_DATABASE_URL` and `sb_secret_` ✔; bundle scan finds no secret/DB URL ✔; 6 unit tests ✔ |
 | 3.4c | [x] Document local DB option (Supabase local stack) and why plain Postgres isn't supported | — | README + architecture D6 ✔ |
-| 3.5 | [-] `vercel.json` SPA rewrite ✔; git repo + push ✔ (by candidate); deploy to Vercel; set the 2 env vars | 3.4 | Live URL loads; deep link `/d/:id` refresh works |
-| 3.6 | [ ] Supabase auth Site URL / redirect URLs → Vercel domain | 3.5 | Sign-in works on live URL |
-| 3.7 | [ ] Live verification of J1–J5 with two real sign-ups (desktop + 375 px mobile) | 3.5 | Checklist below all ticked |
-| 3.8 | [ ] Screenshots to `docs/screenshots/` | 3.7 | Files exist and referenced from SUBMISSION.md |
-| 3.9 | [ ] Walkthrough outline in SUBMISSION.md | 3.7 | Outline covers the 5 required topics |
+| 3.5 | [x] Deployed to Vercel (by candidate): https://ajaia-docs-nu-peach.vercel.app | 3.4 | All routes HTTP 200; bundle has no secrets; deployed build matches current code (no demo) ✔ |
+| 3.6 | [x] Email confirmation OFF; sign-up/sign-in work on live API | 3.5 | Two accounts created + authenticated via live API ✔ |
+| 3.7 | [-] Live J1–J5: sharing/persistence verified via live API; browser UI tested by candidate; mobile-width pass pending | 3.5 | API-level matrix ✔; visual mobile check remaining |
+| 3.8 | [ ] Screenshots to `docs/screenshots/` (candidate, for submission) | 3.7 | Files exist and referenced from SUBMISSION.md |
+| 3.9 | [x] Walkthrough outline in SUBMISSION.md | 3.7 | Outline covers all required topics ✔ (video not yet recorded) |
+
+| 3.10 | [x] Security review of live deployment (30+ probes) | 3.5 | No vulns; `docs/security-review.md` ✔ |
 
 ### Manual verification checklist (run on live URL)
 - [ ] J1 create → format (H1, bold, italic, underline, bullets, numbers) → refresh → intact
@@ -98,10 +100,10 @@ _All Phase 2 code is written and type-checks; nothing is marked `[x]` until exer
 
 ## Phase 4 — Final review  (M)
 
-- [ ] Requirement-by-requirement audit against `idea.md` (table in SUBMISSION.md)
-- [ ] Docs match code: README commands re-run from clean clone; architecture folder tree updated
-- [ ] `memory.md` final state; `SUBMISSION.md` statuses honest; `AI_WORKFLOW.md` complete
-- [ ] Prepare Google Drive folder contents list (user uploads)
+- [x] Requirement-by-requirement audit against `idea.md` (table in SUBMISSION.md) ✔ every core requirement ✅
+- [-] Docs match code: architecture folder tree + env model updated ✔; README clean-clone re-run still recommended
+- [x] `memory.md`, `SUBMISSION.md`, `AI_WORKFLOW.md` updated ✔
+- [ ] Prepare Google Drive folder (candidate) + record walkthrough video
 
 ## Optional improvements (only after Phase 3 is green)
 
